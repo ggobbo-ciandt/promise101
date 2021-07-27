@@ -44,7 +44,6 @@ when(fulfilled: promises)
  ## Wrap in a closure to avoid that
  */
 
-
 let wrappedPromises = [{ myAsyncFunction21() },
                        { myAsyncFunction22() },
                        { myAsyncFunction23() },

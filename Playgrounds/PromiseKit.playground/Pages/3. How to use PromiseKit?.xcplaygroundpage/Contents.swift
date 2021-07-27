@@ -6,7 +6,9 @@
 import PromiseKit
 
 func myAsyncFunction9() -> Promise<String> {
-    .value("9")
+    return Promise { seal in
+        seal.fulfill("9")
+    }
 }
 
 func myAsyncFunction10() -> Promise<String> {

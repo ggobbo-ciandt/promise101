@@ -4,7 +4,6 @@
 //
 //  Created by Giuliano Gobbo Maranha on 25/07/21.
 //
-
 import PromiseKit
 import UIKit
 
@@ -26,73 +25,93 @@ class ViewController: UIViewController {
     let width: CGFloat = 24
 
     @IBAction func didTapRedButton() {
-        focus(redWidth)
+//        focus(redWidth)
     }
 
     @IBAction func didTapGreenButton() {
-        focus(greenWidth)
+//        focus(greenWidth)
     }
 
     @IBAction func didTapBlueButton() {
-        focus(blueWidth)
+//        focus(blueWidth)
     }
-
 
     @IBAction func didTapLoopButton() {
-        guard loopGuarantee == nil else {
-            loopResolve?(true)
-            return
-        }
-
-        (loopGuarantee, loopResolve) = Guarantee.pending()
-
-        animationLoop().done { _ in
-            self.loopGuarantee = nil
-            self.loopResolve = nil
-        }
+        animationLoop()
     }
 
-    @discardableResult
-    func animationLoop() -> Guarantee<Bool> {
-        firstly {
-            self.rotateView(self.redView)
-        }.then { _ in
-            self.rotateView(self.greenView)
-        }.then { _ in
-            self.rotateView(self.blueView)
-        }.then { completed in
-            if self.loopGuarantee?.isFulfilled ?? false {
-                return .value(completed)
-            }
-            return self.animationLoop()
-        }
-    }
-
-    @discardableResult
-    func rotateView(_ view: UIView) -> Guarantee<Bool> {
-        UIView.animate(.promise,
-                       duration: self.duration,
-                       delay: self.delay) {
-            view.transform = view.transform.rotated(by: CGFloat.pi)
-        }
-    }
-
-    @discardableResult
-    func focus(_ constraint: NSLayoutConstraint) -> Guarantee<Bool> {
-        return firstly {
-            loopGuarantee ?? .value(true)
-        }.then { _ in
-            let widthConstant = { (constraintT: NSLayoutConstraint) -> CGFloat in
-                constraint === constraintT && constraintT.constant == self.width ? self.width * 2 : self.width
-            }
-            self.redWidth.constant = widthConstant(self.redWidth)
-            self.greenWidth.constant = widthConstant(self.greenWidth)
-            self.blueWidth.constant = widthConstant(self.blueWidth)
-            return UIView.animate(.promise,
-                           duration: self.duration,
-                           delay: self.delay) {
-                self.view.layoutIfNeeded()
+    func animationLoop() {
+        rotateView(redView) { _ in
+            self.rotateView(self.greenView) { _ in
+                self.rotateView(self.blueView) { _ in
+                    self.animationLoop()
+                }
             }
         }
     }
+
+    func rotateView(_ view: UIView, completion: ((Bool) -> Void)?) {
+        UIView.animate(withDuration: self.duration,
+                       delay: self.delay,
+                       animations: { view.transform = view.transform.rotated(by: CGFloat.pi) },
+                       completion: completion)
+    }
+
+//    @IBAction func didTapLoopButton() {
+//        guard loopGuarantee == nil else {
+//            loopResolve?(true)
+//            return
+//        }
+//
+//        (loopGuarantee, loopResolve) = Guarantee.pending()
+//
+//        animationLoop().done { _ in
+//            self.loopGuarantee = nil
+//            self.loopResolve = nil
+//        }
+//    }
+//
+//    @discardableResult
+//    func animationLoop() -> Guarantee<Bool> {
+//        firstly {
+//            self.rotateView(self.redView)
+//        }.then { _ in
+//            self.rotateView(self.greenView)
+//        }.then { _ in
+//            self.rotateView(self.blueView)
+//        }.then { completed in
+//            if self.loopGuarantee?.isFulfilled ?? false {
+//                return .value(completed)
+//            }
+//            return self.animationLoop()
+//        }
+//    }
+//
+//    @discardableResult
+//    func rotateView(_ view: UIView) -> Guarantee<Bool> {
+//        UIView.animate(.promise,
+//                       duration: self.duration,
+//                       delay: self.delay) {
+//            view.transform = view.transform.rotated(by: CGFloat.pi)
+//        }
+//    }
+//
+//    @discardableResult
+//    func focus(_ constraint: NSLayoutConstraint) -> Guarantee<Bool> {
+//        return firstly {
+//            loopGuarantee ?? .value(true)
+//        }.then { _ in
+//            let widthConstant = { (constraintT: NSLayoutConstraint) -> CGFloat in
+//                constraint === constraintT && constraintT.constant == self.width ? self.width * 2 : self.width
+//            }
+//            self.redWidth.constant = widthConstant(self.redWidth)
+//            self.greenWidth.constant = widthConstant(self.greenWidth)
+//            self.blueWidth.constant = widthConstant(self.blueWidth)
+//            return UIView.animate(.promise,
+//                           duration: self.duration,
+//                           delay: self.delay) {
+//                self.view.layoutIfNeeded()
+//            }
+//        }
+//    }
 }

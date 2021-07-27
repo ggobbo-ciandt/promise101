@@ -14,21 +14,19 @@ let queue = DispatchQueue.global()
  */
 //: It will use previous used queue
 
-//queue.async(.promise) { () -> Void in
-//    print("1. \(Thread.current)")
-//}.then(on: nil) { _ -> Promise<Void> in
-//    print("2. \(Thread.current)")
-//    return .value
-//}.then { _ -> Promise<Void> in
-//    print("3. \(Thread.current)")
-//    return .value
-//}.then(on: nil) { _ -> Promise<Void> in
-//    print("4. \(Thread.current)")
-//    return .value
-//}
+queue.async(.promise) { () -> Void in
+    print("1. \(Thread.current)")
+}.then(on: nil) { _ -> Promise<Void> in
+    print("2. \(Thread.current)")
+    return .value
+}.then { _ -> Promise<Void> in
+    print("3. \(Thread.current)")
+    return .value
+}.then(on: nil) { _ -> Promise<Void> in
+    print("4. \(Thread.current)")
+    return .value
+}
 
-
-//: [Previous](@previous)
 /*:
  ## Error handling
  */
@@ -46,9 +44,10 @@ DispatchQueue.main.async(.promise) {
     print("1. success")
 }.then { _ -> Promise<Void> in
     print("2. will fail")
-    return .value //.init(error: PromiseError.someError)
-}.ensure {
-    print("3. error:")
+    return .init(error: PromiseError.someError)
+}.recover { error -> Promise<Void> in
+    print("3. error: \(error)")
+    return .value
 }.then { _ -> Promise<String> in
     print("4. continuing after recover")
     return .value("tst")
@@ -60,11 +59,10 @@ DispatchQueue.main.async(.promise) {
 
 
 
-
-//: [Previous](@previous)
 /*:
  ## Async after
  */
+//:
 after(.milliseconds(1000)).done {
     print("waited")
 }

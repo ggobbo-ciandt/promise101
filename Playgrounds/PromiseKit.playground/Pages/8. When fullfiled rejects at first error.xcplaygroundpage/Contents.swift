@@ -13,7 +13,7 @@ enum PromiseError: LocalizedError {
 
 func myAsyncFunction25() -> Promise<String> {
     DispatchQueue.global().async(.promise) { () -> Promise<String> in
-        return .init(error: PromiseError.unknown)
+         return .init(error: PromiseError.unknown)
         print("25")
         return Promise<String>.value("25")
     }.then(on: .global()) {
@@ -91,67 +91,4 @@ when(resolved: [myAsyncFunction25(), myAsyncFunction26(), myAsyncFunction27(), m
     }.finally {
         print("Finally 7. resolved: \(Date().timeIntervalSince(start))")
     }
-
-print("---")
-
-//: [Next](@next)
-
-
-
-
-
-
-
-
-
-
-
-//: [Previous](@previous)
-
-import Foundation
-import PromiseKit
-
-let queue = DispatchQueue(label: "serialQueue")
-
-
-//não precisa passar a queue, colocar mais exemplo
-func tst() -> Promise<Void> {
-    queue.async(.promise) { () -> Promise<Void> in
-        print("1. \(Thread.current)")
-        sleep(1)
-        return .value
-    }.then(on: nil) { _ -> Promise<Void> in
-        print("2. \(Thread.current)")
-        sleep(1)
-        return .value
-    }.then(on: nil) { _ -> Promise<Void> in
-        print("3. \(Thread.current)")
-        sleep(1)
-        return .value
-    }
-}
-
-
-//tempo
-after(.milliseconds(1000)).done {
-    print("waited")
-}
-
-
-tst().done(on: .global()) {
-    print("3. \(Thread.current)")
-}
-queue.async {
-    print("wow")
-}
-
-
-
-
-//get
-
-//tap
-
-//error chain
-
 //: [Next](@next)
