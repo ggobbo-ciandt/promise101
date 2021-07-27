@@ -1,0 +1,33 @@
+name: Promise101
+options:
+  bundlePrefix: com.giuliano.promise
+settings:
+  base: 
+  configs:
+    Debug:
+      BUILD_PROFILE: development
+      SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG
+targets:
+  Promise101App:
+    type: application
+    platform: iOS
+    deploymentTarget: "14.0"
+    sources:
+      - path: Promise101App/Promise101App
+      - path: Playgrounds
+    settings:
+      base:
+      configs:
+        Debug:
+          PRODUCT_BUNDLE_IDENTIFIER: com.cit.promise101app
+    postCompileScripts:
+      - script: ${PODS_ROOT}/SwiftLint/swiftlint
+        name: Swiftlint
+  Promise101AppTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "14.0"
+    sources:
+      - path: Promise101App/Promise101AppTests
+    dependencies:
+      - target: Promise101App
